@@ -447,6 +447,24 @@
       return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
 
+    function hexToRgbObj(hex) {
+      let cleanHex = hex.startsWith('#') ? hex.slice(1) : hex;
+      if (cleanHex.length === 3) {
+        cleanHex = cleanHex.split('').map(c => c + c).join('');
+      }
+      let bigint = parseInt(cleanHex, 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+
+    function hexToRgbString(hex) {
+      const rgb = hexToRgbObj(hex);
+      return `${rgb.r},${rgb.g},${rgb.b}`;
+    }
+
     function hexToRgb(hex) {
       let bigint = parseInt(hex.slice(1), 16);
       return {
@@ -461,21 +479,39 @@
       render();
     }
 
+    function parseTokenToRgb(t) {
+      let cleaned = t.trim();
+      if (cleaned.endsWith(',')) cleaned = cleaned.slice(0, -1);
+      
+      // Check if it's a hex code (with or without #)
+      if (cleaned.startsWith('#') || /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleaned)) {
+        try {
+          return hexToRgbObj(cleaned);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      const commas = (cleaned.match(/,/g) || []).length;
+      if (commas === 0 && cleaned !== '') cleaned += ',0,0';
+      else if (commas === 1) cleaned += ',0';
+      
+      const parts = cleaned.split(',').map(Number);
+      if (parts.length >= 3) {
+        return { r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 };
+      }
+      return null;
+    }
+
     function updateLayersFromInput() {
       const val = colorInput.value.trim();
       if (!val) return;
       const tokens = val.split(/\s+/);
       let newLayers = [];
       for (let t of tokens) {
-        let cleaned = t.trim();
-        if (cleaned.endsWith(',')) cleaned = cleaned.slice(0, -1);
-        const commas = (cleaned.match(/,/g) || []).length;
-        if (commas === 0 && cleaned !== '') cleaned += ',0,0';
-        else if (commas === 1) cleaned += ',0';
-        
-        const parts = cleaned.split(',').map(Number);
-        if (parts.length >= 3) {
-          newLayers.push({ r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 });
+        const rgb = parseTokenToRgb(t);
+        if (rgb) {
+          newLayers.push(rgb);
         }
       }
       if (newLayers.length > 0) {
@@ -584,7 +620,17 @@
     function cleanColorToken(c) {
       c = c.trim();
       if (c.endsWith(',')) c = c.slice(0, -1).trim();
-      if (c.startsWith('#') || c.toLowerCase().startsWith('rgb')) return c;
+      
+      // If it's a hex code, convert it to RGB format string
+      if (c.startsWith('#') || /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(c)) {
+        try {
+          return hexToRgbString(c);
+        } catch (e) {
+          return c;
+        }
+      }
+
+      if (c.startsWith('rgb') || c.startsWith('RGB')) return c;
       const commas = (c.match(/,/g) || []).length;
       if (commas === 0 && c !== '') c = c + ',0,0';
       else if (commas === 1) c = c + ',0';
@@ -592,9 +638,11 @@
     }
 
     function parseColor(c) {
-      const cleaned = cleanColorToken(c);
-      if (cleaned.startsWith('#') || cleaned.toLowerCase().startsWith('rgb')) return cleaned;
-      return `rgb(${cleaned})`;
+      const rgb = parseTokenToRgb(c);
+      if (rgb) {
+        return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+      }
+      return c;
     }
 
     function drawGradient(canvasId, parts) {
