@@ -20,7 +20,7 @@
     }
 
     body.dark-mode {
-      --bg-gradient: linear-gradient(to top, #000000, #333333, #333333, #333333, #000000);
+      --bg-gradient: linear-gradient(to top, #000000, #303035, #303035, #303035, #000000);
       --text-color: #ffffff;
       --container-bg: rgba(0, 0, 0, 0.6);
       --border-color: #ffffff;
@@ -35,53 +35,61 @@
 
     html, body {
       height: 100vh;
+      width: 100vw;
       overflow: hidden;
+      margin: 0;
     }
+
     body {
       background: var(--bg-gradient);
       color: var(--text-color);
       font-family: 'Finger Paint', Arial, sans-serif;
-      margin: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 1.1vw;
       transition: background 0.3s, color 0.3s;
     }
+
     .container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 1.2vh;
       position: relative;
+      width: 90vw;
+      max-width: 650px;
+      height: 92vh;
+      justify-content: center;
     }
-    .watermark {
+
+    .watermark, h1 {
       font-family: 'Finger Paint', Arial, sans-serif;
-      font-size: 14px;
+      text-align: center;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .watermark {
+      font-size: 0.9rem;
       margin: 0;
       opacity: 0.5;
-      text-align: center;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
     }
+
     h1 {
-      font-family: 'Finger Paint', Arial, sans-serif;
-      font-size: 36px;
+      font-size: 2.2rem;
       margin: 0;
-      text-align: center;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
     }
     
     /* Dark mode toggle button */
     .theme-toggle {
       position: absolute;
-      top: -4px;
+      top: 0;
       right: 0;
       font-family: 'Finger Paint', Arial, sans-serif;
-      font-size: 14px;
-      padding: 6px 12px;
+      font-size: 0.9rem;
+      padding: 0.6vh 1.2vw;
       cursor: pointer;
       border: 3px solid var(--border-color);
       background: var(--toggle-bg);
@@ -90,25 +98,28 @@
       image-rendering: crisp-edges;
       transition: background 0.3s, border-color 0.3s, color 0.3s;
     }
+
     .theme-toggle:active {
       background: var(--btn-active);
     }
 
-    /* Layer system styles with constant height */
+    /* Layer system styles with responsive sizing */
     .layers-container {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      width: 550px;
-      height: 275px;
+      gap: 1vh;
+      width: 100%;
+      height: 32vh;
+      max-height: 280px;
       background: var(--container-bg);
       border: 3px solid var(--border-color);
-      padding: 10px;
+      padding: 1.2vh 1.2vw;
       box-sizing: border-box;
       transition: background 0.3s, border-color 0.3s;
     }
+
     #layersList {
-      height: 200px;
+      flex-grow: 1;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -117,14 +128,17 @@
       box-sizing: border-box;
       position: relative;
     }
+
     /* Custom pixel-art style scrollbar */
     #layersList::-webkit-scrollbar {
       width: 8px;
     }
+
     #layersList::-webkit-scrollbar-track {
       background: var(--scrollbar-track);
       border: 2px solid var(--border-color);
     }
+
     #layersList::-webkit-scrollbar-thumb {
       background: var(--scrollbar-thumb);
       border: 2px solid var(--border-color);
@@ -148,6 +162,7 @@
       flex-direction: column;
       gap: 2px;
     }
+
     .move-btn {
       font-family: 'Finger Paint', Arial, sans-serif;
       font-size: 10px;
@@ -164,13 +179,16 @@
       line-height: 1;
       transition: background 0.3s, border-color 0.3s, color 0.3s;
     }
+
     .move-btn span {
       display: inline-block;
       transform: rotate(90deg);
     }
+
     .move-btn:active:not(:disabled) {
       background: var(--btn-active);
     }
+
     .move-btn:disabled {
       opacity: 0.3;
       cursor: default;
@@ -185,6 +203,7 @@
       flex-shrink: 0;
       transition: border-color 0.3s;
     }
+
     .color-preview-box input[type="color"] {
       position: absolute;
       top: 0;
@@ -194,56 +213,61 @@
       opacity: 0;
       cursor: pointer;
     }
+
     .layer-label {
       flex-grow: 1;
-      font-size: 16px;
+      font-size: 1rem;
       user-select: none;
       color: var(--text-color);
     }
+
     .layer-actions {
       display: flex;
       gap: 5px;
     }
-    .small-btn {
+
+    .small-btn, .add-layer-btn {
       font-family: 'Finger Paint', Arial, sans-serif;
-      font-size: 14px;
-      padding: 4px 8px;
       cursor: pointer;
       border: 2px solid var(--border-color);
       background: var(--btn-bg);
       color: var(--text-color);
       transition: background 0.3s, border-color 0.3s;
     }
+
+    .small-btn {
+      font-size: 0.9rem;
+      padding: 4px 8px;
+    }
+
     .small-btn:active {
       background: var(--btn-active);
     }
+
     .add-layer-btn {
       width: 100%;
-      font-family: 'Finger Paint', Arial, sans-serif;
-      font-size: 16px;
+      font-size: 1rem;
       padding: 8px;
-      cursor: pointer;
-      border: 2px solid var(--border-color);
-      background: var(--btn-bg);
-      color: var(--text-color);
       flex-shrink: 0;
-      transition: background 0.3s, border-color 0.3s;
     }
 
     .stage-wrapper {
       display: flex;
       justify-content: center;
+      max-height: 35vh;
+      overflow: hidden;
     }
+
     .stage {
       position: relative;
       display: inline-block;
-      transform: scale(4);
       transform-origin: top center;
       padding: 1px; 
       background-color: var(--border-color);
       line-height: 0;
       transition: background-color 0.3s;
     }
+
     .ui-layer {
       position: relative;
       display: block;
@@ -252,18 +276,21 @@
       image-rendering: crisp-edges;
       border: none; 
     }
+
     .gradient-canvas {
       position: absolute;
       z-index: 1;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
+
     #rect1 {
       left: 21px; 
       top: 40px;
       width: 300px;
       height: 20px;
     }
+
     #rect2 {
       left: 174px;
       top: 67px;
@@ -276,12 +303,14 @@
       display: flex;
       align-items: center;
       gap: 0;
+      width: 100%;
     }
+
     input[type="text"] {
       font-family: 'Finger Paint', Arial, sans-serif;
-      font-size: 20px;
-      padding: 14px 18px;
-      width: 460px;
+      font-size: 1.1rem;
+      padding: 1.2vh 1.2vw;
+      flex-grow: 1;
       border: 3px solid var(--border-color);
       border-radius: 0;
       outline: none;
@@ -291,10 +320,11 @@
       color: var(--text-color);
       transition: background 0.3s, border-color 0.3s, color 0.3s;
     }
+
     .btn {
       font-family: 'Finger Paint', Arial, sans-serif;
-      font-size: 20px;
-      padding: 14px 22px;
+      font-size: 1.1rem;
+      padding: 1.2vh 1.8vw;
       cursor: pointer;
       border: 3px solid var(--border-color);
       border-left: none;
@@ -305,6 +335,7 @@
       image-rendering: crisp-edges;
       transition: background 0.3s, border-color 0.3s, color 0.3s;
     }
+
     .btn:active {
       background: var(--btn-active);
     }
@@ -314,16 +345,14 @@
 
   <div class="container">
     <button class="theme-toggle" onclick="toggleDarkMode()">Theme</button>
-    <p class="watermark">*Vibecoded with the use of AI</p>
+    <p class="watermark">Vibecoded with the use of AI</p>
     <h1>JJS Gradient Maker</h1>
     
-    <!-- Layer System (Top) -->
     <div class="layers-container" id="layersContainer">
       <div id="layersList"></div>
       <button class="add-layer-btn" onclick="addLayer()">+ Add Color Layer</button>
     </div>
 
-    <!-- Preview Stage -->
     <div class="stage-wrapper" id="stageWrapper">
       <div class="stage" id="stage">
         <canvas class="gradient-canvas" id="rect1" width="300" height="20"></canvas>
@@ -332,7 +361,6 @@
       </div>
     </div>
 
-    <!-- Text input and copy button (Bottom) -->
     <div class="input-group">
       <input type="text" id="colorInput" value="0,0,0 255,0,0" placeholder="Type colors here...">
       <button class="btn" onclick="copyCleaned()">Copy</button>
@@ -349,23 +377,23 @@
       { r: 255, g: 0, b: 0 }
     ];
 
-    // Initialize theme based on system preference if no user preference is stored
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    if (systemPrefersDark.matches) {
+    // Initialize theme from localStorage, falling back to system preference
+    const savedTheme = localStorage.getItem('jjs_theme');
+    if (savedTheme === 'dark') {
       document.body.classList.add('dark-mode');
-    }
-
-    // Listen for system theme changes live if desired
-    systemPrefersDark.addEventListener('change', (e) => {
-      if (e.matches) {
+    } else if (savedTheme === 'light') {
+      document.body.classList.remove('dark-mode');
+    } else {
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+      if (systemPrefersDark.matches) {
         document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
       }
-    });
+    }
 
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('jjs_theme', isDark ? 'dark' : 'light');
     }
 
     function rgbToHex(r, g, b) {
@@ -473,8 +501,7 @@
 
         const label = document.createElement('div');
         label.className = 'layer-label';
-        const displayColorNum = index + 1;
-        label.textContent = `Color ${displayColorNum}: rgb(${layer.r}, ${layer.g}, ${layer.b})`;
+        label.textContent = `Color ${index + 1}: rgb(${layer.r}, ${layer.g}, ${layer.b})`;
 
         const actions = document.createElement('div');
         actions.className = 'layer-actions';
@@ -558,16 +585,26 @@
       });
     }
 
-    overlayImg.onload = function() {
+    function updateStageScale() {
+      if (!overlayImg.naturalWidth) return;
       const stage = document.getElementById('stage');
+      const wrapper = document.getElementById('stageWrapper');
+      
       stage.style.width = overlayImg.naturalWidth + 'px';
       stage.style.height = overlayImg.naturalHeight + 'px';
       
-      const scale = 4;
-      const wrapper = document.getElementById('stageWrapper');
+      const targetHeight = window.innerHeight * 0.28;
+      const scale = Math.max(2, Math.min(5, targetHeight / overlayImg.naturalHeight));
+      
+      stage.style.transform = `scale(${scale})`;
       wrapper.style.width = ((overlayImg.naturalWidth + 2) * scale) + 'px';
       wrapper.style.height = ((overlayImg.naturalHeight + 2) * scale) + 'px';
+    }
 
+    window.addEventListener('resize', updateStageScale);
+
+    overlayImg.onload = function() {
+      updateStageScale();
       updateLayersFromInput();
     };
 
