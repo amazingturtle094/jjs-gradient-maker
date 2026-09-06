@@ -174,17 +174,18 @@
     .move-btn {
       font-family: 'Finger Paint', Arial, sans-serif;
       font-size: 10px;
-      width: 22px;
-      height: 16px;
+      width: 24px;
+      height: 18px;
       padding: 0;
       cursor: pointer;
-      border: 1px solid var(--border-color);
+      border: 2px solid var(--border-color); /* Changed from 1px to 2px */
       background: var(--btn-bg);
       color: var(--text-color);
       display: flex;
       align-items: center;
       justify-content: center;
       line-height: 1;
+      box-sizing: border-box;
       transition: background 0.3s, border-color 0.3s, color 0.3s;
     }
 
