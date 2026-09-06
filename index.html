@@ -17,6 +17,7 @@
       --scrollbar-track: #e0e0e0;
       --scrollbar-thumb: #888888;
       --toggle-bg: #cccccc;
+      --shadow-color: rgba(0, 0, 0, 0.4);
     }
 
     body.dark-mode {
@@ -31,6 +32,7 @@
       --scrollbar-track: #333333;
       --scrollbar-thumb: #666666;
       --toggle-bg: #444444;
+      --shadow-color: rgba(0, 0, 0, 0.7);
     }
 
     html, body {
@@ -80,6 +82,7 @@
     h1 {
       font-size: 2.2rem;
       margin: 0;
+      filter: drop-shadow(0 6px 4px var(--shadow-color));
     }
     
     /* Top controls container for buttons (stacked vertically) */
@@ -105,6 +108,7 @@
       image-rendering: crisp-edges;
       transition: background 0.3s, border-color 0.3s, color 0.3s;
       text-align: center;
+      filter: drop-shadow(0 5px 4px var(--shadow-color));
     }
 
     .pixel-btn:active {
@@ -124,6 +128,7 @@
       padding: 1.2vh 1.2vw;
       box-sizing: border-box;
       transition: background 0.3s, border-color 0.3s;
+      filter: drop-shadow(0 6px 5px var(--shadow-color));
     }
 
     #layersList {
@@ -162,23 +167,23 @@
       user-select: none;
       flex-shrink: 0;
       transition: background 0.3s, border-color 0.3s;
+      filter: drop-shadow(0 4px 3px var(--shadow-color));
     }
 
-    /* Move buttons layout with rotated text */
+    /* Move buttons layout matching color square height (32px total) */
     .move-buttons {
       display: flex;
       flex-direction: column;
-      gap: 2px;
     }
 
     .move-btn {
       font-family: 'Finger Paint', Arial, sans-serif;
       font-size: 10px;
       width: 24px;
-      height: 18px;
+      height: 16px;
       padding: 0;
       cursor: pointer;
-      border: 2px solid var(--border-color); /* Changed from 1px to 2px */
+      border: 2px solid var(--border-color);
       background: var(--btn-bg);
       color: var(--text-color);
       display: flex;
@@ -186,7 +191,23 @@
       justify-content: center;
       line-height: 1;
       box-sizing: border-box;
+      position: relative;
+      margin-top: -2px;
       transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    .move-btn:first-child {
+      margin-top: 0;
+    }
+
+    .move-btn:not(:disabled) {
+      z-index: 2;
+    }
+
+    .move-btn:disabled {
+      z-index: 1;
+      opacity: 0.3;
+      cursor: default;
     }
 
     .move-btn span {
@@ -196,11 +217,6 @@
 
     .move-btn:active:not(:disabled) {
       background: var(--btn-active);
-    }
-
-    .move-btn:disabled {
-      opacity: 0.3;
-      cursor: default;
     }
 
     .color-preview-box {
@@ -242,6 +258,7 @@
       background: var(--btn-bg);
       color: var(--text-color);
       transition: background 0.3s, border-color 0.3s;
+      filter: drop-shadow(0 3px 2px var(--shadow-color));
     }
 
     .small-btn {
@@ -265,6 +282,7 @@
       justify-content: center;
       max-height: 35vh;
       overflow: hidden;
+      filter: drop-shadow(0 6px 5px var(--shadow-color));
     }
 
     .stage {
@@ -313,6 +331,7 @@
       align-items: center;
       gap: 0;
       width: 100%;
+      filter: drop-shadow(0 6px 5px var(--shadow-color));
     }
 
     input[type="text"] {
@@ -363,7 +382,7 @@
     
     <div class="layers-container" id="layersContainer">
       <div id="layersList"></div>
-      <button class="add-layer-btn" onclick="addLayer()">+ Add Color Layer</button>
+      <button class="add-layer-btn" onclick="addLayer()">Add Color</button>
     </div>
 
     <div class="stage-wrapper" id="stageWrapper">
@@ -529,7 +548,7 @@
 
         const label = document.createElement('div');
         label.className = 'layer-label';
-        label.textContent = `Color ${index + 1}: rgb(${layer.r}, ${layer.g}, ${layer.b})`;
+        label.textContent = `Color ${index + 1}: RGB(${layer.r},${layer.g},${layer.b})`;
 
         const actions = document.createElement('div');
         actions.className = 'layer-actions';
