@@ -1,1 +1,1 @@
-# jjs-gradient-maker
+haha get tricked noob
