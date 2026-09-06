@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gradient Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(to top, rgb(192, 192, 192), rgb(255, 255, 255), rgb(255, 255, 255), rgb(255, 255, 255), rgb(192, 192, 192));
+      --text-color: #000000;
+      --container-bg: rgba(255, 255, 255, 0.6);
+      --border-color: #000000;
+      --row-bg: #ffffff;
+      --btn-bg: #cccccc;
+      --btn-active: #999999;
+      --input-bg: #ffffff;
+      --scrollbar-track: #e0e0e0;
+      --scrollbar-thumb: #888888;
+      --toggle-bg: #cccccc;
+    }
+
+    body.dark-mode {
+      --bg-gradient: linear-gradient(to top, #000000, #333333, #333333, #333333, #000000);
+      --text-color: #ffffff;
+      --container-bg: rgba(0, 0, 0, 0.6);
+      --border-color: #ffffff;
+      --row-bg: #222222;
+      --btn-bg: #444444;
+      --btn-active: #666666;
+      --input-bg: #1a1a1a;
+      --scrollbar-track: #333333;
+      --scrollbar-thumb: #666666;
+      --toggle-bg: #444444;
+    }
+
+    html, body {
+      height: 100vh;
+      overflow: hidden;
+    }
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      font-family: 'Finger Paint', Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+    .watermark {
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 14px;
+      margin: 0;
+      opacity: 0.5;
+      text-align: center;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    h1 {
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 36px;
+      margin: 0;
+      text-align: center;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    
+    /* Dark mode toggle button */
+    .theme-toggle {
+      position: absolute;
+      top: -4px;
+      right: 0;
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 14px;
+      padding: 6px 12px;
+      cursor: pointer;
+      border: 3px solid var(--border-color);
+      background: var(--toggle-bg);
+      color: var(--text-color);
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .theme-toggle:active {
+      background: var(--btn-active);
+    }
+
+    /* Layer system styles with constant height */
+    .layers-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 550px;
+      height: 275px;
+      background: var(--container-bg);
+      border: 3px solid var(--border-color);
+      padding: 10px;
+      box-sizing: border-box;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    #layersList {
+      height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+      box-sizing: border-box;
+      position: relative;
+    }
+    /* Custom pixel-art style scrollbar */
+    #layersList::-webkit-scrollbar {
+      width: 8px;
+    }
+    #layersList::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border: 2px solid var(--border-color);
+    }
+    #layersList::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border: 2px solid var(--border-color);
+    }
+
+    .layer-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--row-bg);
+      border: 2px solid var(--border-color);
+      padding: 6px;
+      user-select: none;
+      flex-shrink: 0;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    /* Move buttons layout with rotated text */
+    .move-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .move-btn {
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 10px;
+      width: 22px;
+      height: 16px;
+      padding: 0;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--btn-bg);
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .move-btn span {
+      display: inline-block;
+      transform: rotate(90deg);
+    }
+    .move-btn:active:not(:disabled) {
+      background: var(--btn-active);
+    }
+    .move-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .color-preview-box {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: border-color 0.3s;
+    }
+    .color-preview-box input[type="color"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .layer-label {
+      flex-grow: 1;
+      font-size: 16px;
+      user-select: none;
+      color: var(--text-color);
+    }
+    .layer-actions {
+      display: flex;
+      gap: 5px;
+    }
+    .small-btn {
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 14px;
+      padding: 4px 8px;
+      cursor: pointer;
+      border: 2px solid var(--border-color);
+      background: var(--btn-bg);
+      color: var(--text-color);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .small-btn:active {
+      background: var(--btn-active);
+    }
+    .add-layer-btn {
+      width: 100%;
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 16px;
+      padding: 8px;
+      cursor: pointer;
+      border: 2px solid var(--border-color);
+      background: var(--btn-bg);
+      color: var(--text-color);
+      flex-shrink: 0;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .stage-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+    .stage {
+      position: relative;
+      display: inline-block;
+      transform: scale(4);
+      transform-origin: top center;
+      padding: 1px; 
+      background-color: var(--border-color);
+      line-height: 0;
+      transition: background-color 0.3s;
+    }
+    .ui-layer {
+      position: relative;
+      display: block;
+      z-index: 2;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border: none; 
+    }
+    .gradient-canvas {
+      position: absolute;
+      z-index: 1;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    #rect1 {
+      left: 21px; 
+      top: 40px;
+      width: 300px;
+      height: 20px;
+    }
+    #rect2 {
+      left: 174px;
+      top: 67px;
+      width: 147px;
+      height: 5px;
+    }
+
+    /* Bottom input box area */
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    input[type="text"] {
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 20px;
+      padding: 14px 18px;
+      width: 460px;
+      border: 3px solid var(--border-color);
+      border-radius: 0;
+      outline: none;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: var(--input-bg);
+      color: var(--text-color);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .btn {
+      font-family: 'Finger Paint', Arial, sans-serif;
+      font-size: 20px;
+      padding: 14px 22px;
+      cursor: pointer;
+      border: 3px solid var(--border-color);
+      border-left: none;
+      border-radius: 0;
+      background: var(--btn-bg);
+      color: var(--text-color);
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .btn:active {
+      background: var(--btn-active);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <button class="theme-toggle" onclick="toggleDarkMode()">Theme</button>
+    <p class="watermark">*Vibecoded with the use of AI</p>
+    <h1>JJS Gradient Maker</h1>
+    
+    <!-- Layer System (Top) -->
+    <div class="layers-container" id="layersContainer">
+      <div id="layersList"></div>
+      <button class="add-layer-btn" onclick="addLayer()">+ Add Color Layer</button>
+    </div>
+
+    <!-- Preview Stage -->
+    <div class="stage-wrapper" id="stageWrapper">
+      <div class="stage" id="stage">
+        <canvas class="gradient-canvas" id="rect1" width="300" height="20"></canvas>
+        <canvas class="gradient-canvas" id="rect2" width="147" height="5"></canvas>
+        <img src="overlay.png" class="ui-layer" id="overlayImg" alt="UI Overlay">
+      </div>
+    </div>
+
+    <!-- Text input and copy button (Bottom) -->
+    <div class="input-group">
+      <input type="text" id="colorInput" value="0,0,0 255,0,0" placeholder="Type colors here...">
+      <button class="btn" onclick="copyCleaned()">Copy</button>
+    </div>
+  </div>
+
+  <script>
+    const overlayImg = document.getElementById('overlayImg');
+    const colorInput = document.getElementById('colorInput');
+    const layersList = document.getElementById('layersList');
+
+    let layers = [
+      { r: 0, g: 0, b: 0 },
+      { r: 255, g: 0, b: 0 }
+    ];
+
+    // Initialize theme based on system preference if no user preference is stored
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    if (systemPrefersDark.matches) {
+      document.body.classList.add('dark-mode');
+    }
+
+    // Listen for system theme changes live if desired
+    systemPrefersDark.addEventListener('change', (e) => {
+      if (e.matches) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    });
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function hexToRgb(hex) {
+      let bigint = parseInt(hex.slice(1), 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+
+    function updateInputFromLayers() {
+      colorInput.value = layers.map(l => `${l.r},${l.g},${l.b}`).join(' ');
+      render();
+    }
+
+    function updateLayersFromInput() {
+      const val = colorInput.value.trim();
+      if (!val) return;
+      const tokens = val.split(/\s+/);
+      let newLayers = [];
+      for (let t of tokens) {
+        let cleaned = t.trim();
+        if (cleaned.endsWith(',')) cleaned = cleaned.slice(0, -1);
+        const commas = (cleaned.match(/,/g) || []).length;
+        if (commas === 0 && cleaned !== '') cleaned += ',0,0';
+        else if (commas === 1) cleaned += ',0';
+        
+        const parts = cleaned.split(',').map(Number);
+        if (parts.length >= 3) {
+          newLayers.push({ r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 });
+        }
+      }
+      if (newLayers.length > 0) {
+        layers = newLayers;
+        renderLayersUI();
+      }
+      render();
+    }
+
+    colorInput.addEventListener('input', updateLayersFromInput);
+
+    function renderLayersUI() {
+      layersList.innerHTML = '';
+      
+      for (let index = layers.length - 1; index >= 0; index--) {
+        const layer = layers[index];
+        const hex = rgbToHex(layer.r, layer.g, layer.b);
+        
+        const row = document.createElement('div');
+        row.className = 'layer-row';
+
+        const moveContainer = document.createElement('div');
+        moveContainer.className = 'move-buttons';
+
+        const upBtn = document.createElement('button');
+        upBtn.className = 'move-btn';
+        upBtn.innerHTML = '<span>&lt;</span>';
+        upBtn.disabled = (index === layers.length - 1);
+        upBtn.onclick = () => {
+          if (index < layers.length - 1) {
+            const temp = layers[index];
+            layers[index] = layers[index + 1];
+            layers[index + 1] = temp;
+            renderLayersUI();
+            updateInputFromLayers();
+          }
+        };
+
+        const downBtn = document.createElement('button');
+        downBtn.className = 'move-btn';
+        downBtn.innerHTML = '<span>&gt;</span>';
+        downBtn.disabled = (index === 0);
+        downBtn.onclick = () => {
+          if (index > 0) {
+            const temp = layers[index];
+            layers[index] = layers[index - 1];
+            layers[index - 1] = temp;
+            renderLayersUI();
+            updateInputFromLayers();
+          }
+        };
+
+        moveContainer.appendChild(upBtn);
+        moveContainer.appendChild(downBtn);
+
+        const colorBox = document.createElement('div');
+        colorBox.className = 'color-preview-box';
+        colorBox.style.backgroundColor = hex;
+        
+        const colorPickerInput = document.createElement('input');
+        colorPickerInput.type = 'color';
+        colorPickerInput.value = hex;
+        colorPickerInput.addEventListener('input', (e) => {
+          const rgb = hexToRgb(e.target.value);
+          layers[index] = rgb;
+          colorBox.style.backgroundColor = e.target.value;
+          updateInputFromLayers();
+        });
+        colorBox.appendChild(colorPickerInput);
+
+        const label = document.createElement('div');
+        label.className = 'layer-label';
+        const displayColorNum = index + 1;
+        label.textContent = `Color ${displayColorNum}: rgb(${layer.r}, ${layer.g}, ${layer.b})`;
+
+        const actions = document.createElement('div');
+        actions.className = 'layer-actions';
+        
+        if (layers.length > 1) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'small-btn';
+          deleteBtn.textContent = 'X';
+          deleteBtn.onclick = () => {
+            layers.splice(index, 1);
+            renderLayersUI();
+            updateInputFromLayers();
+          };
+          actions.appendChild(deleteBtn);
+        }
+
+        row.appendChild(moveContainer);
+        row.appendChild(colorBox);
+        row.appendChild(label);
+        row.appendChild(actions);
+        layersList.appendChild(row);
+      }
+    }
+
+    function addLayer() {
+      const last = layers[layers.length - 1] || { r: 255, g: 255, b: 255 };
+      layers.push({ ...last });
+      renderLayersUI();
+      updateInputFromLayers();
+      layersList.scrollTop = 0;
+    }
+
+    function cleanColorToken(c) {
+      c = c.trim();
+      if (c.endsWith(',')) c = c.slice(0, -1).trim();
+      if (c.startsWith('#') || c.toLowerCase().startsWith('rgb')) return c;
+      const commas = (c.match(/,/g) || []).length;
+      if (commas === 0 && c !== '') c = c + ',0,0';
+      else if (commas === 1) c = c + ',0';
+      return c;
+    }
+
+    function parseColor(c) {
+      const cleaned = cleanColorToken(c);
+      if (cleaned.startsWith('#') || cleaned.toLowerCase().startsWith('rgb')) return cleaned;
+      return `rgb(${cleaned})`;
+    }
+
+    function drawGradient(canvasId, parts) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+
+      const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+      parts.forEach((color, index) => {
+        const stop = parts.length === 1 ? 0 : index / (parts.length - 1);
+        gradient.addColorStop(stop, color);
+      });
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function render() {
+      const val = colorInput.value.trim();
+      if (!val) return;
+      const parts = val.split(/\s+/).map(parseColor);
+      drawGradient('rect1', parts);
+      drawGradient('rect2', parts);
+    }
+
+    function copyCleaned() {
+      const val = colorInput.value.trim();
+      if (!val) return;
+      const cleanedTokens = val.split(/\s+/).map(cleanColorToken);
+      const cleanedString = cleanedTokens.join(' ');
+
+      navigator.clipboard.writeText(cleanedString).then(() => {
+        colorInput.value = cleanedString;
+        updateLayersFromInput();
+      });
+    }
+
+    overlayImg.onload = function() {
+      const stage = document.getElementById('stage');
+      stage.style.width = overlayImg.naturalWidth + 'px';
+      stage.style.height = overlayImg.naturalHeight + 'px';
+      
+      const scale = 4;
+      const wrapper = document.getElementById('stageWrapper');
+      wrapper.style.width = ((overlayImg.naturalWidth + 2) * scale) + 'px';
+      wrapper.style.height = ((overlayImg.naturalHeight + 2) * scale) + 'px';
+
+      updateLayersFromInput();
+    };
+
+    if (overlayImg.complete) {
+      overlayImg.onload();
+    } else {
+      renderLayersUI();
+      render();
+    }
+  </script>
+
+</body>
+</html>
