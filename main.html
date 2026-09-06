@@ -6,7 +6,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-gradient: linear-gradient(to top, rgb(192, 192, 192), rgb(255, 255, 255), rgb(255, 255, 255), rgb(255, 255, 255), rgb(192, 192, 192));
+      --bg-gradient: radial-gradient(circle at center, rgb(255, 255, 255) 0%, rgb(220, 220, 220) 60%, rgb(160, 160, 160) 100%);
       --text-color: #000000;
       --container-bg: rgba(255, 255, 255, 0.6);
       --border-color: #000000;
@@ -20,7 +20,7 @@
     }
 
     body.dark-mode {
-      --bg-gradient: linear-gradient(to top, #000000, #303035, #303035, #303035, #000000);
+      --bg-gradient: radial-gradient(circle at center, #3a3a40 0%, #1c1c20 60%, #000000 100%);
       --text-color: #ffffff;
       --container-bg: rgba(0, 0, 0, 0.6);
       --border-color: #ffffff;
@@ -82,11 +82,18 @@
       margin: 0;
     }
     
-    /* Dark mode toggle button */
-    .theme-toggle {
+    /* Top controls container for buttons (stacked vertically) */
+    .top-controls {
       position: absolute;
       top: 0;
       right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Toggle buttons style */
+    .pixel-btn {
       font-family: 'Finger Paint', Arial, sans-serif;
       font-size: 0.9rem;
       padding: 0.6vh 1.2vw;
@@ -97,9 +104,10 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       transition: background 0.3s, border-color 0.3s, color 0.3s;
+      text-align: center;
     }
 
-    .theme-toggle:active {
+    .pixel-btn:active {
       background: var(--btn-active);
     }
 
@@ -262,7 +270,7 @@
       position: relative;
       display: inline-block;
       transform-origin: top center;
-      padding: 1px; 
+      padding: 2px; 
       background-color: var(--border-color);
       line-height: 0;
       transition: background-color 0.3s;
@@ -287,15 +295,15 @@
     #rect1 {
       left: 21px; 
       top: 40px;
-      width: 300px;
-      height: 20px;
+      width: 301px;
+      height: 21px;
     }
 
     #rect2 {
       left: 174px;
       top: 67px;
-      width: 147px;
-      height: 5px;
+      width: 148px;
+      height: 6px;
     }
 
     /* Bottom input box area */
@@ -344,7 +352,11 @@
 <body>
 
   <div class="container">
-    <button class="theme-toggle" onclick="toggleDarkMode()">Theme</button>
+    <div class="top-controls">
+      <button class="pixel-btn" onclick="toggleDarkMode()">Theme</button>
+      <button class="pixel-btn" id="overlayToggleBtn" onclick="toggleOverlay()">Overlay: 1</button>
+    </div>
+    
     <p class="watermark">Vibecoded with the use of AI</p>
     <h1>JJS Gradient Maker</h1>
     
@@ -355,8 +367,8 @@
 
     <div class="stage-wrapper" id="stageWrapper">
       <div class="stage" id="stage">
-        <canvas class="gradient-canvas" id="rect1" width="300" height="20"></canvas>
-        <canvas class="gradient-canvas" id="rect2" width="147" height="5"></canvas>
+        <canvas class="gradient-canvas" id="rect1" width="301" height="21"></canvas>
+        <canvas class="gradient-canvas" id="rect2" width="148" height="6"></canvas>
         <img src="overlay.png" class="ui-layer" id="overlayImg" alt="UI Overlay">
       </div>
     </div>
@@ -371,6 +383,9 @@
     const overlayImg = document.getElementById('overlayImg');
     const colorInput = document.getElementById('colorInput');
     const layersList = document.getElementById('layersList');
+    const overlayToggleBtn = document.getElementById('overlayToggleBtn');
+
+    let currentOverlayIndex = 1;
 
     let layers = [
       { r: 2, g: 172, b: 255 },
@@ -394,6 +409,18 @@
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
       localStorage.setItem('jjs_theme', isDark ? 'dark' : 'light');
+    }
+
+    function toggleOverlay() {
+      if (currentOverlayIndex === 1) {
+        currentOverlayIndex = 2;
+        overlayImg.src = 'overlay2.png';
+        overlayToggleBtn.textContent = 'Overlay: 2';
+      } else {
+        currentOverlayIndex = 1;
+        overlayImg.src = 'overlay.png';
+        overlayToggleBtn.textContent = 'Overlay: 1';
+      }
     }
 
     function rgbToHex(r, g, b) {
@@ -597,8 +624,8 @@
       const scale = Math.max(2, Math.min(5, targetHeight / overlayImg.naturalHeight));
       
       stage.style.transform = `scale(${scale})`;
-      wrapper.style.width = ((overlayImg.naturalWidth + 2) * scale) + 'px';
-      wrapper.style.height = ((overlayImg.naturalHeight + 2) * scale) + 'px';
+      wrapper.style.width = ((overlayImg.naturalWidth + 4) * scale) + 'px';
+      wrapper.style.height = ((overlayImg.naturalHeight + 4) * scale) + 'px';
     }
 
     window.addEventListener('resize', updateStageScale);
